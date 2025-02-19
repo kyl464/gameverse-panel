@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    color: var(--foreground);
+    background: linear-gradient(180deg, #e0c8f5 0%, #ffffff 50%, #e0c8f5 100%) !important;
+    font-family: 'Arial', 'Helvetica', sans-serif;
+    margin: 0;
+    padding: 0;
+  }
