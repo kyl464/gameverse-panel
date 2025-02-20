@@ -65,7 +65,7 @@ const SideNav = () => {
                   ></path>
                 </svg>
               </button>
-              <a href="https://flowbite.com" className="flex ms-2 md:me-24">
+              <a href="/home" className="flex ms-2 md:me-24">
                 <img
                   src="https://flowbite.com/docs/images/logo.svg"
                   className="h-8 me-3"
@@ -89,7 +89,7 @@ const SideNav = () => {
                     <img
                       className="w-8 h-8 rounded-full"
                       src={
-                        user?.avatar_url ||
+                        user?.img_url ||
                         "https://flowbite.com/docs/images/people/profile-picture-5.jpg"
                       }
                       alt="user photo"
@@ -124,7 +124,7 @@ const SideNav = () => {
               ) : (
                 <button
                   onClick={() => router.push("/login")}
-                  className="px-4 py-2 text-sm text-purple-100 hover:bg-purple-700 rounded-lg transition-colors"
+                  className="px-4 py-2 text-sm bg-purple-700 text-white hover:bg-purple-500 rounded-lg transition-colors"
                 >
                   Sign In
                 </button>

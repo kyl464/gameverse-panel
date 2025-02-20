@@ -5,8 +5,8 @@ const Index = () => {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace("/home"); // Redirect ke halaman utama panel
-  }, []);
+    router.replace("/home"); // Redirect ke halaman utama
+  }, [router]);
 
   return null;
 };

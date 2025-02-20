@@ -2,8 +2,10 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 function authMiddleware(req, res, next) {
-  const token = req.header("Authorization")?.split(" ")[1];
+  const authHeader = req.header("Authorization");
+  if (!authHeader) return res.status(401).json({ message: "Unauthorized" });
 
+  const token = authHeader.split(" ")[1];
   if (!token) return res.status(401).json({ message: "Unauthorized" });
 
   try {
@@ -11,7 +13,7 @@ function authMiddleware(req, res, next) {
     req.user = decoded;
     next();
   } catch (error) {
-    res.status(403).json({ message: "Invalid Token" });
+    return res.status(403).json({ message: "Invalid Token" });
   }
 }
 

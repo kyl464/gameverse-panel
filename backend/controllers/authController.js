@@ -41,35 +41,34 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
-    // Cek user di database
     let { data: user } = await supabase
       .from("users")
       .select("*")
       .eq("email", email)
       .single();
+
     if (!user)
       return res.status(400).json({ message: "Email atau password salah!" });
 
-    // Cek password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)
       return res.status(400).json({ message: "Email atau password salah!" });
 
-    // Generate token JWT
     const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
       expiresIn: "1d",
     });
 
-    // Simpan token di cookies
+    // Simpan token di cookies, bukan hanya di response body
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV === "production", // Gunakan secure di production
+      sameSite: "Lax",
       maxAge: 24 * 60 * 60 * 1000, // 1 hari
     });
 
     res.json({
       message: "Login berhasil!",
-      user: { email: user.email, name: user.name },
+      user: { id: user.id, email: user.email, name: user.name },
     });
   } catch (error) {
     res.status(500).json({ message: "Server error!", error: error.message });

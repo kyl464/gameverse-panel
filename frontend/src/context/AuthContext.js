@@ -2,34 +2,49 @@ import { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"; // Default ke port 5000
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    fetchProfile(); // Ambil data user saat pertama kali load
+    fetchProfile();
   }, []);
 
   const fetchProfile = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
     try {
+      const token = localStorage.getItem("token");
+      console.log("🔍 Token saat fetchProfile:", token);
+
+      if (!token) {
+        console.warn("⚠️ Token not found, tetap di halaman yang sama.");
+        setLoading(false);
+        return;
+      }
+
       const response = await axios.get(`${API_URL}/auth/profile`, {
         headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
       });
-      setUser(response.data.user);
+
+      console.log("✅ User profile berhasil diambil:", response.data);
+      setUser(response.data);
     } catch (error) {
       console.error(
-        "Fetch profile failed:",
+        "❌ Fetch profile failed:",
         error.response?.data || error.message
       );
-      logout();
+      localStorage.removeItem("token");
+      setUser(null);
+      if (router.pathname !== "/login") {
+        router.push("/login");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -40,8 +55,11 @@ export const AuthProvider = ({ children }) => {
         email,
         password,
       });
+
       localStorage.setItem("token", response.data.token);
       setUser(response.data.user);
+      console.log("Token setelah login:", localStorage.getItem("token"));
+
       return { success: true, user: response.data.user };
     } catch (error) {
       console.error("Login failed:", error.response?.data || error.message);
@@ -51,18 +69,29 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    setUser(null);
-    if (router.isReady) {
-      router.push("/login");
+  const logout = async () => {
+    try {
+      console.log("🔍 Mengirim request logout...");
+      const response = await axios.post(
+        `${API_URL}/auth/logout`,
+        {},
+        { withCredentials: true }
+      );
+
+      console.log("✅ Logout berhasil:", response.data);
+      localStorage.removeItem("token");
+      setUser(null);
+
+      if (router.isReady) {
+        router.push("/login");
+      }
+    } catch (error) {
+      console.error("Logout failed:", error.response?.data || error.message);
     }
   };
 
   return (
-    <AuthContext.Provider
-      value={{ user, setUser, login, logout, loading, fetchProfile }}
-    >
+    <AuthContext.Provider value={{ user, setUser, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,11 +1,13 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/globals.css";
 import { useEffect } from "react";
-import { AuthProvider } from "../context/AuthContext"; // Import your AuthProvider
+import { AuthProvider } from "../context/AuthContext"; // Import AuthProvider
 
 function MyApp({ Component, pageProps }) {
   useEffect(() => {
-    import("bootstrap/dist/js/bootstrap.bundle.min.js");
+    if (typeof window !== "undefined") {
+      import("bootstrap/dist/js/bootstrap.bundle.min.js");
+    }
   }, []);
 
   return (
